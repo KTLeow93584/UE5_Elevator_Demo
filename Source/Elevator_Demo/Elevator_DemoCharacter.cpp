@@ -64,12 +64,16 @@ AElevator_DemoCharacter::AElevator_DemoCharacter()
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
 
+	IsAlive = true;
+
 	// Initialize projectile class
 	ProjectileClass = AElevator_DemoProjectile::StaticClass();
 
 	// Initialize fire rate
 	FireRate = 0.25f;
 	bIsFiringWeapon = false;
+
+	SetReplicates(true);
 }
 
 void AElevator_DemoCharacter::BeginPlay()
@@ -153,8 +157,8 @@ void AElevator_DemoCharacter::GetLifetimeReplicatedProps(TArray <FLifetimeProper
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	//Replicate current health.
 	DOREPLIFETIME(AElevator_DemoCharacter, CurrentHealth);
+	DOREPLIFETIME(AElevator_DemoCharacter, IsAlive);
 }
 
 void AElevator_DemoCharacter::OnRep_CurrentHealth()
@@ -164,30 +168,56 @@ void AElevator_DemoCharacter::OnRep_CurrentHealth()
 
 void AElevator_DemoCharacter::OnHealthUpdate()
 {
-	//Client-specific functionality
+	// Client-specific functionality
 	if (IsLocallyControlled())
 	{
-		FString healthMessage = FString::Printf(TEXT("You now have %f health remaining."), CurrentHealth);
+		FString healthMessage = FString::Printf(TEXT("You (%s) now have %f health remaining."), *GetFName().ToString(), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
-
-		if (CurrentHealth <= 0)
-		{
-			FString deathMessage = FString::Printf(TEXT("You have been killed."));
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
-		}
 	}
 
-	//Server-specific functionality
+	// Server-specific functionality
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		FString healthMessage = FString::Printf(TEXT("%s now has %f health remaining."), *GetFName().ToString(), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
 	}
+}
 
-	//Functions that occur on all machines.
-	/*
-		Any special functionality that should occur as a result of damage or death should be placed here.
-	*/
+void AElevator_DemoCharacter::OnRep_IsAlive()
+{
+	if (IsAlive)
+		return;
+
+	OnDeath();
+}
+
+void AElevator_DemoCharacter::OnDeath() {
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+	SetActorEnableCollision(true);
+
+	// Ragdoll
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->WakeAllRigidBodies();
+	GetMesh()->bBlendPhysics = true;
+
+	// Client-specific functionality
+	if (IsLocallyControlled())
+	{
+		FString deathMessage = FString::Printf(TEXT("You have died."), *GetFName().ToString(), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
+	}
+
+	// Server-specific functionality
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FString deathMessage = FString::Printf(TEXT("%s has died."), *GetFName().ToString(), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
+	}
 }
 
 void AElevator_DemoCharacter::SetCurrentHealth(float healthValue)
@@ -196,6 +226,11 @@ void AElevator_DemoCharacter::SetCurrentHealth(float healthValue)
 	{
 		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
 		OnHealthUpdate();
+
+		if (CurrentHealth <= 0 && IsAlive) {
+			IsAlive = false;
+			OnDeath();
+		}
 	}
 }
 

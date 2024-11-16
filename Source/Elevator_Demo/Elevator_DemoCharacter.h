@@ -65,6 +65,16 @@ protected:
 	/** Response to health being updated. Called on the server immediately after modification, and on clients in response to a RepNotify*/
 	void OnHealthUpdate();
 
+	/** The player's current health. When reduced to 0, they are considered dead.*/
+	UPROPERTY(ReplicatedUsing = OnRep_IsAlive)
+	float IsAlive;
+
+	/** RepNotify for changes made to current health.*/
+	UFUNCTION()
+	void OnRep_IsAlive();
+
+	void OnDeath();
+
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -122,6 +132,7 @@ public:
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
