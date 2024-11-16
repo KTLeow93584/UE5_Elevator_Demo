@@ -55,23 +55,23 @@ protected:
 	float MaxHealth;
 
 	/** The player's current health. When reduced to 0, they are considered dead.*/
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
+	UPROPERTY(ReplicatedUsing = ClientRPC_CurrentHealth)
 	float CurrentHealth;
 
 	/** RepNotify for changes made to current health.*/
 	UFUNCTION()
-	void OnRep_CurrentHealth();
+	void ClientRPC_CurrentHealth();
 
 	/** Response to health being updated. Called on the server immediately after modification, and on clients in response to a RepNotify*/
 	void OnHealthUpdate();
 
 	/** The player's current health. When reduced to 0, they are considered dead.*/
-	UPROPERTY(ReplicatedUsing = OnRep_IsAlive)
+	UPROPERTY(ReplicatedUsing = ClientRPC_IsAlive)
 	float IsAlive;
 
 	/** RepNotify for changes made to current health.*/
 	UFUNCTION()
-	void OnRep_IsAlive();
+	void ClientRPC_IsAlive();
 
 	void OnDeath();
 
@@ -101,7 +101,7 @@ protected:
 
 	/** Server function for spawning projectiles.*/
 	UFUNCTION(Server, Reliable)
-	void HandleFire();
+	void ServerRPC_HandleFire();
 
 	/** A timer handle used for providing the fire rate delay in-between spawns.*/
 	FTimerHandle FiringTimer;

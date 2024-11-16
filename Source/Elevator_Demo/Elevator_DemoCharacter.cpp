@@ -161,7 +161,7 @@ void AElevator_DemoCharacter::GetLifetimeReplicatedProps(TArray <FLifetimeProper
 	DOREPLIFETIME(AElevator_DemoCharacter, IsAlive);
 }
 
-void AElevator_DemoCharacter::OnRep_CurrentHealth()
+void AElevator_DemoCharacter::ClientRPC_CurrentHealth()
 {
 	OnHealthUpdate();
 }
@@ -183,7 +183,7 @@ void AElevator_DemoCharacter::OnHealthUpdate()
 	}
 }
 
-void AElevator_DemoCharacter::OnRep_IsAlive()
+void AElevator_DemoCharacter::ClientRPC_IsAlive()
 {
 	if (IsAlive)
 		return;
@@ -240,7 +240,8 @@ float AElevator_DemoCharacter::TakeDamage(float DamageTaken, struct FDamageEvent
 	SetCurrentHealth(damageApplied);
 	return damageApplied;
 }
-
+///////////////////////////////
+// Fire
 void AElevator_DemoCharacter::StartFire()
 {
 	if (!bIsFiringWeapon)
@@ -248,7 +249,7 @@ void AElevator_DemoCharacter::StartFire()
 		bIsFiringWeapon = true;
 		UWorld* World = GetWorld();
 		World->GetTimerManager().SetTimer(FiringTimer, this, &AElevator_DemoCharacter::StopFire, FireRate, false);
-		HandleFire();
+		ServerRPC_HandleFire();
 	}
 }
 
@@ -257,7 +258,7 @@ void AElevator_DemoCharacter::StopFire()
 	bIsFiringWeapon = false;
 }
 
-void AElevator_DemoCharacter::HandleFire_Implementation()
+void AElevator_DemoCharacter::ServerRPC_HandleFire_Implementation()
 {
 	FVector spawnLocation = GetActorLocation() + (GetActorRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
 	FRotator spawnRotation = GetActorRotation();
@@ -268,3 +269,4 @@ void AElevator_DemoCharacter::HandleFire_Implementation()
 
 	AElevator_DemoProjectile* spawnedProjectile = GetWorld()->SpawnActor<AElevator_DemoProjectile>(spawnLocation, spawnRotation, spawnParameters);
 }
+///////////////////////////////
