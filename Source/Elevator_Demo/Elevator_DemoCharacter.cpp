@@ -168,13 +168,6 @@ void AElevator_DemoCharacter::ClientRPC_CurrentHealth()
 
 void AElevator_DemoCharacter::OnHealthUpdate()
 {
-	// Client-specific functionality
-	if (IsLocallyControlled())
-	{
-		FString healthMessage = FString::Printf(TEXT("You (%s) now have %f health remaining."), *GetFName().ToString(), CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
-	}
-
 	// Server-specific functionality
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -204,13 +197,6 @@ void AElevator_DemoCharacter::OnDeath() {
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->WakeAllRigidBodies();
 	GetMesh()->bBlendPhysics = true;
-
-	// Client-specific functionality
-	if (IsLocallyControlled())
-	{
-		FString deathMessage = FString::Printf(TEXT("You have died."), *GetFName().ToString(), CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
-	}
 
 	// Server-specific functionality
 	if (GetLocalRole() == ROLE_Authority)
