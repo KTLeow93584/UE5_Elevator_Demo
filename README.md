@@ -21,7 +21,7 @@
    <img src="/Screenshots/03b_Death_by_Out_of_Bounds.webp" alt="Description" width="900" height="450">
 
 4. **Respawn Mechanic**
-   - Respawns character using either randomized spawn positions (**`** key) or fixed floor spawn positions (**Shift + 1/2/3/4/5**).
+   - Respawns character using either randomized spawn positions (**Tab** key) or fixed floor spawn positions (**Shift + 1/2/3/4/5**).
 
 5. **User-Interactable Elevator System**
    <br/>
