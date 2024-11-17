@@ -1,7 +1,10 @@
 # Elevator Demo
 
 ## Tech Stacks
+Game Engine:
 - Unreal Engine 5
+
+Programming/Scripting Languages:
 - C++
 - Blueprint scripting
 
