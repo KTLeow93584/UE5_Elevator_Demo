@@ -268,5 +268,8 @@ void AElevator_DemoCharacter::ServerRPC_HandleFire_Implementation()
 	spawnParameters.Owner = this;
 
 	AElevator_DemoProjectile* spawnedProjectile = GetWorld()->SpawnActor<AElevator_DemoProjectile>(spawnLocation, spawnRotation, spawnParameters);
+
+	// Set a lifespan of 3 seconds before destruction
+	spawnedProjectile->SetLifeSpan(1.0f);
 }
 ///////////////////////////////
